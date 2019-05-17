@@ -9,7 +9,7 @@ describe('cypress', () => {
         console.log(win.featureToggles);
 
         // Notice:
-        // we only define `get`, so other places to call `window.featureToggles.toggle1 = ...` will have no effect
+        // we only define `get`, so other places calling `window.featureToggles = {}` have no effect
         Object.defineProperty(win, 'featureToggles', {
           get: () => {
             return {
