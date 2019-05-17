@@ -1,39 +1,27 @@
-import {add} from '../../add'
+import './declarations';
 
-describe('TypeScript', () => {
-  it('works', () => {
-    // note TypeScript definition
-    const x: number = 42
-  })
+describe('cypress', () => {
 
-  it('checks shape of an object', () => {
-    const object = {
-      age: 21,
-      name: 'Joe',
-    }
-    expect(object).to.have.all.keys('name', 'age')
-  })
+  it('can modify window object before other loaded javascript code running', () => {
+    cy.visit({
+      url: 'public/index.html',
+      onBeforeLoad(win: Window): void {
+        console.log(win.featureToggles);
 
-  it('uses cy commands', () => {
-    cy.wrap({}).should('deep.eq', {})
-  })
+        // Notice:
+        // we only define `get`, so other places to call `window.featureToggles.toggle1 = ...` will have no effect
+        Object.defineProperty(win, 'featureToggles', {
+          get: () => {
+            return {
+              'toggle1': true
+            }
+          }
+        })
 
-  it('tests our example site', () => {
-    cy.visit('https://example.cypress.io/')
-    cy.get('.home-list')
-      .contains('Querying')
-      .click()
-    cy.get('#query-btn').should('contain', 'Button')
-  })
-
-  // enable once we release updated TypeScript definitions
-  it('has Cypress object type definition', () => {
-    expect(Cypress.version).to.be.a('string')
-  })
-
-
-  it('adds numbers', () => {
-    expect(add(2, 3)).to.equal(5)
+        console.log(win.featureToggles);
+      },
+    })
+    cy.get('#main').should('have.text', 'Hello, toggle1 enabled!');
   })
 
 })
